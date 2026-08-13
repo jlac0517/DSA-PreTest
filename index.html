@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>DSA Pre-Test</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{
+    --bg:#eef0f4;
+    --panel:#ffffff;
+    --ink:#161a23;
+    --muted:#5b6270;
+    --line:#dfe2e9;
+    --accent:#2f5fed;
+    --amber:#b8770a;
+    --amber-bg:#fdf3e0;
+    --danger:#c53434;
+    --code-bg:#171c26;
+    --code-ink:#e7ebf3;
+    --code-line:#2a3140;
+    --tok-kw:#7fb4ff;
+    --tok-str:#f2b866;
+    --tok-com:#7c8698;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Inter',system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+  h1,h2,h3{font-family:'Space Grotesk',sans-serif; margin:0;}
+  .topbar{
+    position:sticky; top:0; z-index:20;
+    background:#11141c; color:#dfe3ee;
+    border-bottom:1px solid #262c3a;
+    font-family:'JetBrains Mono', monospace;
+    font-size:12.5px;
+  }
+  .topbar-inner{
+    max-width:820px; margin:0 auto; padding:9px 18px;
+    display:flex; align-items:center; gap:16px; justify-content:space-between;
+  }
+  .tb-left{display:flex; align-items:center; gap:10px; min-width:0;}
+  .dot{width:8px;height:8px;border-radius:50%; background:#3ddc84; flex:none;}
+  .dot.warn{background:#f2b866; animation:pulse 1.1s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+  .tb-file{color:#8b93a7; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .tb-right{display:flex; align-items:center; gap:14px; flex:none;}
+  .timer{font-weight:600; letter-spacing:.02em;}
+  .timer.low{color:#f2896b;}
+
+  .wrap{max-width:820px; margin:0 auto; padding:28px 18px 80px;}
+  .card{
+    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
+    padding:28px 28px 24px; box-shadow:0 1px 2px rgba(20,24,34,.04);
+  }
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace; font-size:11.5px; letter-spacing:.08em;
+    text-transform:uppercase; color:var(--accent); font-weight:600; margin-bottom:8px;
+  }
+  h1.title{font-size:26px; line-height:1.2; margin-bottom:6px;}
+  .sub{color:var(--muted); font-size:14.5px; line-height:1.55; margin-bottom:18px;}
+  label.field-label{display:block; font-size:13px; font-weight:600; margin:14px 0 6px;}
+  input[type=text]{
+    width:100%; padding:10px 12px; border:1px solid var(--line); border-radius:9px;
+    font:inherit; font-size:15px; background:#fbfbfc;
+  }
+  input[type=text]:focus{outline:2px solid var(--accent); outline-offset:1px; background:#fff;}
+  .row2{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+  .btn{
+    appearance:none; border:none; border-radius:10px; padding:12px 20px;
+    font:inherit; font-weight:600; font-size:14.5px; cursor:pointer;
+    display:inline-flex; align-items:center; gap:8px;
+  }
+  .btn-primary{background:var(--ink); color:#fff;}
+  .btn-primary:hover{background:#000;}
+  .btn-primary:disabled{background:#c7cbd4; cursor:not-allowed;}
+  .btn-ghost{background:transparent; color:var(--muted); border:1px solid var(--line);}
+  .btn-ghost:hover{color:var(--ink); border-color:#c3c8d4;}
+  .btn-skip{background:transparent; color:var(--amber); border:1px dashed #e0b264;}
+  .btn-skip:hover{background:var(--amber-bg);}
+  .actions{display:flex; justify-content:space-between; align-items:center; margin-top:22px; gap:10px; flex-wrap:wrap;}
+  .actions-left{display:flex; gap:10px;}
+
+  .notice{
+    font-size:13px; line-height:1.55; background:#f3f5fa; border:1px solid var(--line);
+    border-radius:10px; padding:12px 14px; color:var(--muted); margin-top:16px;
+  }
+  .notice b{color:var(--ink);}
+  .notice.err{background:#fdf1f1; border-color:#f0c8c8; color:#7a2020;}
+
+  .progress-track{height:5px; background:#e6e8ee; border-radius:99px; overflow:hidden; margin-bottom:22px;}
+  .progress-fill{height:100%; background:var(--accent); transition:width .35s ease;}
+  .qmeta{display:flex; align-items:center; justify-content:space-between; margin-bottom:4px;}
+  .qtag{font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--muted);}
+  .bonus-badge{
+    background:var(--amber-bg); color:var(--amber); font-size:11px; font-weight:700;
+    padding:2px 8px; border-radius:99px; font-family:'JetBrains Mono',monospace;
+  }
+  .qintro{font-size:17px; font-weight:600; line-height:1.4; margin:6px 0 16px;}
+
+  .codepanel{
+    background:var(--code-bg); border-radius:10px; overflow:hidden; margin-bottom:14px;
+    border:1px solid var(--code-line);
+  }
+  pre.code{
+    margin:0; padding:12px 14px; color:var(--code-ink); font-family:'JetBrains Mono',monospace;
+    font-size:13px; line-height:1.6; overflow-x:auto; -webkit-user-select:none; user-select:none;
+  }
+  .tok-kw{color:var(--tok-kw);}
+  .tok-str{color:var(--tok-str);}
+  .tok-com{color:var(--tok-com); font-style:italic;}
+
+  .option{
+    border:2px solid var(--line); border-radius:12px; margin-bottom:12px; cursor:pointer;
+    transition:border-color .15s ease, background .15s ease; overflow:hidden;
+  }
+  .option:hover{border-color:#b7c0d6;}
+  .option.selected{border-color:var(--accent); background:#f2f5ff;}
+  .option .optbar{display:flex; align-items:center; gap:10px; padding:10px 14px 0;}
+  .option.selected .optbar{padding-bottom:0;}
+  .radio{
+    width:17px; height:17px; border-radius:50%; border:2px solid #b7bdca; flex:none;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .option.selected .radio{border-color:var(--accent);}
+  .radio .fill{width:8px; height:8px; border-radius:50%; background:var(--accent); display:none;}
+  .option.selected .radio .fill{display:block;}
+  .optlabel{font-weight:600; font-size:13.5px;}
+  .option .codepanel{margin:10px 14px 14px; border-radius:9px;}
+
+  .justify-box{margin-top:6px; padding-top:14px; border-top:1px dashed var(--line);}
+  .justify-box label{font-size:13px; font-weight:600; display:block; margin-bottom:6px;}
+  .justify-box input{width:100%;}
+  .justify-hint{font-size:12px; color:var(--muted); margin-top:5px;}
+
+  .toast{
+    position:fixed; bottom:20px; left:50%; transform:translateX(-50%);
+    background:var(--ink); color:#fff; padding:10px 16px; border-radius:9px;
+    font-size:13.5px; box-shadow:0 6px 24px rgba(0,0,0,.2); z-index:50;
+    animation:toastin .18s ease; max-width:90vw; text-align:center;
+  }
+  @keyframes toastin{from{opacity:0; transform:translate(-50%,8px);} to{opacity:1; transform:translate(-50%,0);}}
+
+  .center-note{text-align:center; color:var(--muted); font-size:13.5px; margin-top:18px;}
+
+  .table-scroll{overflow-x:auto; margin-top:10px; border:1px solid var(--line); border-radius:10px;}
+  table{width:100%; border-collapse:collapse; font-size:12.5px;}
+  th,td{text-align:left; padding:7px 10px; border-bottom:1px solid var(--line);}
+  th{font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.03em; background:#f6f7fa;}
+
+  .spinner{
+    width:16px; height:16px; border-radius:50%; border:2px solid rgba(255,255,255,.35);
+    border-top-color:#fff; animation:spin .7s linear infinite; display:inline-block;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  @media (max-width:560px){
+    .card{padding:20px 16px;}
+    .row2{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* =========================================================================
+   DSA PRE-TEST — self-contained assessment app
+   - No instructor dashboard here: submissions are written directly to a
+     Supabase table. View/export results in the Supabase Table Editor.
+   - Drafts (in-progress answers) are saved to the browser's localStorage
+     so a refresh doesn't lose a student's progress. This is a normal
+     website (hosted on GitHub Pages), so localStorage is the right tool
+     here — nothing about scoring or "correct answers" lives in this file.
+   ========================================================================= */
+
+// ---------- Supabase config ----------
+// Stored base64-encoded so it doesn't appear as plain text on a casual
+// view-source / Ctrl+F scan. This is a minor deterrent only — it is NOT
+// real security. The browser sends this key in plain text on every request
+// (visible in DevTools → Network to anyone who looks), and Supabase's
+// "publishable" key is designed to be public by default. The actual
+// protection is the Row Level Security policy on the submissions table
+// (insert-only for anonymous users) — see SETUP_GUIDE.md.
+const SUPABASE_URL = atob("aHR0cHM6Ly94dHF6ZWJ1ZWtnaXB1Ym1nYmJsby5zdXBhYmFzZS5jbw==");
+const SUPABASE_ANON_KEY = atob("c2JfcHVibGlzaGFibGVfVE9JZkYyUXVYMklxRy1zLVNOZTRuZ194ZDJwdTg1Mw==");
+
+let sb = null;
+try{
+  if(window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY){
+    sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  }
+}catch(e){ /* left null; submit will show a clear error */ }
+
+// ---------- Question bank (content only — no answer key data here) ----------
+const QUESTIONS = [
+  { id:1, bonus:false, topic:"Searching", requireJustification:true,
+    intro:"arr[] is SORTED, 1,000 elements. Check if target is inside.",
+    options:{
+      A:{lines:["for (int i = 0; i < 1000; i++)","    if (arr[i] == target) return 1;","return 0;"]},
+      B:{lines:["int lo = 0, hi = 999;","while (lo <= hi) {","    int mid = (lo + hi) / 2;","    if (arr[mid] == target) return 1;","    else if (arr[mid] < target) lo = mid + 1;","    else hi = mid - 1;","}","return 0;"]},
+      C:{lines:["int lookup[MAX] = {0};","for (int i = 0; i < 1000; i++)","    lookup[arr[i]] = 1;","return lookup[target];"]},
+    }},
+  { id:2, bonus:false, topic:"Pointers / scope", requireJustification:false,
+    intro:"You need x to become 10 after calling your function.",
+    stem:["int x = 5;"],
+    options:{
+      A:{lines:["int doubleIt(int n) { return n * 2; }","x = doubleIt(x);"]},
+      B:{lines:["void doubleIt(int *n) { *n = *n * 2; }","doubleIt(&x);"]},
+      C:{lines:["int x;   // now a global variable","void doubleIt(void) { x = x * 2; }","doubleIt();"]},
+    }},
+  { id:3, bonus:false, topic:"Recursion", requireJustification:false,
+    intro:"Compute factorial(5), i.e. 5×4×3×2×1.",
+    options:{
+      A:{lines:["int result = 1;","for (int i = 1; i <= 5; i++)","    result *= i;"]},
+      B:{lines:["int factorial(int n) {","    if (n <= 1) return 1;","    return n * factorial(n - 1);","}"]},
+      C:{lines:["int result = 1*2*3*4*5;"]},
+    }},
+  { id:4, bonus:false, topic:"Pointers", requireJustification:false,
+    intro:"Swap the values of a and b.",
+    stem:["int a = 3, b = 7;"],
+    options:{
+      A:{lines:["int temp = a;","a = b;","b = temp;"]},
+      B:{lines:["void swap(int *x, int *y) {","    int temp = *x;","    *x = *y; *y = temp;","}","swap(&a, &b);"]},
+      C:{lines:["a = a + b;","b = a - b;","a = a - b;"]},
+    }},
+  { id:5, bonus:false, topic:"Efficiency reasoning", requireJustification:false,
+    intro:"As n gets very large, how \u201cexpensive\u201d does this code get?",
+    stem:["for (int i = 0; i < n; i++)","    for (int j = 0; j < n; j++)","        // do something"],
+    options:{
+      A:{lines:["// Runs n * n times overall.","// Cost grows like n\u00b2, whatever n is."]},
+      B:{lines:["// I'd run it with n = 10, 100, 1000","// and time each one, then compare."]},
+      C:{lines:["// For n = 5, the inner line runs","// exactly 25 times (5 \u00d7 5)."]},
+    }},
+  { id:6, bonus:false, topic:"Data organization", requireJustification:true,
+    intro:"Store each student's name AND grade together.",
+    options:{
+      A:{lines:["char names[50][30];","int grades[50];","// matched by index i"]},
+      B:{lines:["struct Student {","    char name[30];","    int grade;","};","struct Student list[50];"]},
+      C:{lines:['char data[50][50];','// "Juan Dela Cruz,95"','// split on the comma later']},
+    }},
+  { id:7, bonus:false, topic:"Arrays", requireJustification:false,
+    intro:"Reverse the array IN PLACE.",
+    stem:["int arr[10] = {1,2,3,4,5,6,7,8,9,10};"],
+    options:{
+      A:{lines:["int t[10];","for (int i = 0; i < 10; i++) t[i] = arr[9-i];","for (int i = 0; i < 10; i++) arr[i] = t[i];"]},
+      B:{lines:["int l = 0, r = 9;","while (l < r) {","    int t = arr[l]; arr[l] = arr[r]; arr[r] = t;","    l++; r--;","}"]},
+      C:{lines:["int r[10], c = 0;","for (int i = 0; i < 10; i++) {","    for (int j = c; j > 0; j--) r[j] = r[j-1];","    r[0] = arr[i]; c++;","}"]},
+    }},
+  { id:8, bonus:false, topic:"Stacks", requireJustification:false,
+    intro:"You always want to remove the MOST RECENTLY added task first.",
+    stem:["int tasks[100];"],
+    options:{
+      A:{lines:["int top = -1;","void push(int t) { tasks[++top] = t; }","int pop(void) { return tasks[top--]; }"]},
+      B:{lines:["int count = 0;","void push(int t) {","    for (int i = count; i > 0; i--)","        tasks[i] = tasks[i-1];","    tasks[0] = t; count++;","}"]},
+      C:{lines:["void handleTasks(int tasks[], int n) {","    if (n == 0) return;","    process(tasks[n-1]);   // most recent first","    handleTasks(tasks, n-1);","}"]},
+    }},
+  { id:9, bonus:false, topic:"Linked structures", requireJustification:true,
+    intro:"You'll frequently insert/delete names from the MIDDLE of a list, not just the ends.",
+    options:{
+      A:{lines:["char names[50][30]; int count;","void insertAt(int pos, char *name) {","    for (int i = count; i > pos; i--)","        strcpy(names[i], names[i-1]);","    strcpy(names[pos], name); count++;","}"]},
+      B:{lines:["char names[200][30];   // bigger than needed","int used[200] = {0};   // 1 = filled, 0 = gap","void insertAt(int slot, char *name) {","    strcpy(names[slot], name); used[slot] = 1;","}"]},
+      C:{lines:["struct Node {","    char name[30];","    struct Node *next;","};","// insert: new->next = prev->next; prev->next = new;"]},
+    }},
+  { id:10, bonus:false, topic:"Dynamic memory", requireJustification:false,
+    intro:"You don't know ahead of time how many items you'll store — 5, or 5,000 — decided while the program runs.",
+    options:{
+      A:{lines:["int items[10000];   // just in case","int count = 0;"]},
+      B:{lines:['int n; scanf("%d", &n);',"int *items = malloc(n * sizeof(int));","// ... use items ...","free(items);"]},
+      C:{lines:["int cap = 4, count = 0;","int *items = malloc(cap * sizeof(int));","void addItem(int v) {","    if (count == cap) { cap *= 2; items = realloc(items, cap * sizeof(int)); }","    items[count++] = v;","}"]},
+    }},
+
+  // ---------------- BONUS (optional, skippable) ----------------
+  { id:11, bonus:true, topic:"Memory layout", requireJustification:false,
+    intro:"You need a 10×10 grid of integers (e.g. a game board).",
+    options:{
+      A:{lines:["int grid[10][10];"]},
+      B:{lines:["int grid[100];","// access with grid[row*10 + col]"]},
+      C:{lines:["int *grid[10];","for (int i = 0; i < 10; i++)","    grid[i] = malloc(10 * sizeof(int));"]},
+    }},
+  { id:12, bonus:true, topic:"Recursion & efficiency", requireJustification:false,
+    intro:"Compute the nth Fibonacci number: fib(0)=0, fib(1)=1, fib(n)=fib(n-1)+fib(n-2).",
+    options:{
+      A:{lines:["int fib(int n) {","    if (n <= 1) return n;","    return fib(n-1) + fib(n-2);","}"]},
+      B:{lines:["int a = 0, b = 1;","for (int i = 0; i < n; i++) {","    int t = a + b; a = b; b = t;","}","// a is the answer"]},
+      C:{lines:["int cache[100] = {0};","int fib(int n) {","    if (n <= 1) return n;","    if (cache[n]) return cache[n];","    return cache[n] = fib(n-1) + fib(n-2);","}"]},
+    }},
+  { id:13, bonus:true, topic:"Hierarchical thinking", requireJustification:false,
+    intro:"Model an org chart: each employee has a manager, and may have several people reporting to them.",
+    options:{
+      A:{lines:["struct Employee {","    char name[30];","    int managerID;","};","struct Employee staff[100];"]},
+      B:{lines:["struct Employee {","    char name[30];","    struct Employee *reports[5];  // up to 5","};"]},
+      C:{lines:["struct Employee {","    char name[30];","    struct Employee *firstReport;","    struct Employee *nextSibling;","};"]},
+    }},
+  { id:14, bonus:true, topic:"Strings", requireJustification:false,
+    intro:'Reverse a C-string in place: char word[] = "algorithm";',
+    options:{
+      A:{lines:["int len = strlen(word);","for (int i = 0; i < len/2; i++) {","    char t = word[i];","    word[i] = word[len-1-i];","    word[len-1-i] = t;","}"]},
+      B:{lines:["void rev(char *l, char *r) {","    if (l >= r) return;","    char t = *l; *l = *r; *r = t;","    rev(l+1, r-1);","}","rev(word, word + strlen(word) - 1);"]},
+      C:{lines:['char result[50] = "";',"int len = strlen(word);","for (int i = len-1; i >= 0; i--) {",'    char tmp[2] = {word[i], 0};',"    strcat(result, tmp);","}","strcpy(word, result);"]},
+    }},
+  { id:15, bonus:true, topic:"Copy cost / pointers", requireJustification:false,
+    intro:"You have a large struct (a full student record) and a function that only needs to read it.",
+    stem:["struct Student { char name[50]; int grades[20]; char address[100]; };"],
+    options:{
+      A:{lines:["void printRecord(struct Student s) {",'    printf("%s\\n", s.name);',"}","printRecord(record);"]},
+      B:{lines:["void printRecord(struct Student *s) {",'    printf("%s\\n", s->name);',"}","printRecord(&record);"]},
+      C:{lines:["struct Student record;   // global",'void printRecord(void) { printf("%s\\n", record.name); }',"printRecord();"]},
+    }},
+];
+
+const CORE = QUESTIONS.filter(q=>!q.bonus);
+const BONUS = QUESTIONS.filter(q=>q.bonus);
+const ORDER = [...CORE, ...BONUS];
+const TOTAL_MS = 90 * 60 * 1000; // 90-minute ceiling; instructor can announce a shorter stop time
+const DRAFT_PREFIX = "dsa_pretest_draft_";
+
+// ---------- helpers ----------
+function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+function hl(codeLines){
+  const kw = "int|char|void|struct|if|else|while|for|return|break|malloc|realloc|free|sizeof|const|float|double|unsigned|long|short";
+  const re = new RegExp('(//[^\\n]*)|("(?:[^"\\\\]|\\\\.)*")|(\\b(?:'+kw+')\\b)','g');
+  return codeLines.map(line=>{
+    let s = esc(line);
+    s = s.replace(re, (m,com,str,kwd)=>{
+      if(com) return '<span class="tok-com">'+com+'</span>';
+      if(str) return '<span class="tok-str">'+str+'</span>';
+      if(kwd) return '<span class="tok-kw">'+kwd+'</span>';
+      return m;
+    });
+    return s.length ? s : "&nbsp;";
+  }).join("\n");
+}
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+function slug(s){return (s||"").trim().toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/(^-|-$)/g,"") || "anon";}
+function fmtClock(ms){
+  if(ms<0) ms=0;
+  const totalSec = Math.floor(ms/1000);
+  const m = Math.floor(totalSec/60), s = totalSec%60;
+  return String(m).padStart(2,"0")+":"+String(s).padStart(2,"0");
+}
+function nowIso(){return new Date().toISOString();}
+
+// ---------- state ----------
+let state = {
+  screen:"welcome",          // welcome | test | review | submitting | done
+  name:"", section:"",
+  qIndex:0,
+  answers:{},                 // {qid: 'A'|'B'|'C'}
+  justifications:{},          // {qid: string}
+  optOrder:{},                 // {qid: ['B','A','C']}
+  deadline:null,
+  distraction:{count:0, seconds:0},
+  hiddenSince:null,
+  startedAt:null,
+  toast:null,
+  submitError:"",
+};
+let timerHandle = null;
+
+function showToast(msg){
+  state.toast = msg;
+  render();
+  setTimeout(()=>{ state.toast=null; render(); }, 2400);
+}
+
+// ---------- local draft persistence (per-browser, not shared) ----------
+function saveDraft(){
+  try{
+    const payload = {
+      name:state.name, section:state.section, qIndex:state.qIndex,
+      answers:state.answers, justifications:state.justifications,
+      optOrder:state.optOrder, deadline:state.deadline,
+      distraction:state.distraction, startedAt:state.startedAt,
+    };
+    localStorage.setItem(DRAFT_PREFIX+slug(state.name), JSON.stringify(payload));
+  }catch(e){ /* non-fatal, e.g. storage disabled */ }
+}
+function loadDraft(name){
+  try{
+    const raw = localStorage.getItem(DRAFT_PREFIX+slug(name));
+    return raw ? JSON.parse(raw) : null;
+  }catch(e){ return null; }
+}
+function clearDraft(){
+  try{ localStorage.removeItem(DRAFT_PREFIX+slug(state.name)); }catch(e){}
+}
+
+// ---------- submission (Supabase) ----------
+async function submitFinal(){
+  if(!sb){
+    state.submitError = "This page isn't connected to a database yet. Ask your instructor to finish the Supabase setup (SUPABASE_URL / SUPABASE_ANON_KEY at the top of the file).";
+    return false;
+  }
+  state.screen = "submitting";
+  state.submitError = "";
+  render();
+  const payload = {
+    name: state.name,
+    section: state.section,
+    started_at: state.startedAt,
+    submitted_at: nowIso(),
+    duration_sec: state.startedAt ? Math.round((Date.now()-new Date(state.startedAt).getTime())/1000) : null,
+    tab_aways: state.distraction.count,
+    tab_away_seconds: state.distraction.seconds,
+    auto_submitted: !!state.autoSubmitted,
+    answers: state.answers,               // {qid: 'A'|'B'|'C'} — raw pick only
+    justifications: state.justifications, // {qid: string}
+  };
+  try{
+    const { error } = await sb.from("submissions").insert([payload]);
+    if(error) throw error;
+  }catch(e){
+    state.submitError = "Couldn't save your answers (" + ((e&&e.message)||"network error") + "). Your progress is still saved on this device — try Submit again.";
+    state.screen = "review";
+    render();
+    return false;
+  }
+  clearDraft();
+  return true;
+}
+
+// ---------- anti-cheat / integrity tracking ----------
+document.addEventListener("visibilitychange", ()=>{
+  if(state.screen!=="test") return;
+  if(document.hidden){
+    state.hiddenSince = Date.now();
+  } else if(state.hiddenSince){
+    const away = Math.round((Date.now()-state.hiddenSince)/1000);
+    state.distraction.count += 1;
+    state.distraction.seconds += away;
+    state.hiddenSince = null;
+    saveDraft();
+    render();
+  }
+});
+document.addEventListener("copy", (e)=>{
+  if(e.target && e.target.closest && e.target.closest(".codepanel")){
+    e.preventDefault();
+    showToast("Copying code is disabled during the pre-test.");
+  }
+});
+document.addEventListener("contextmenu", (e)=>{
+  if(e.target && e.target.closest && e.target.closest(".codepanel")){
+    e.preventDefault();
+  }
+});
+
+// ---------- timer ----------
+function startTimer(){
+  if(timerHandle) clearInterval(timerHandle);
+  timerHandle = setInterval(()=>{
+    if(!state.deadline) return;
+    const remaining = state.deadline - Date.now();
+    if(remaining<=0){
+      clearInterval(timerHandle);
+      autoSubmit();
+    } else {
+      renderTimerOnly();
+    }
+  }, 1000);
+}
+async function autoSubmit(){
+  state.autoSubmitted = true;
+  const ok = await submitFinal();
+  state.screen = ok ? "done" : "review";
+  render();
+}
+
+// ---------- flow actions ----------
+function beginTest(){
+  if(!state.name.trim()){ showToast("Please enter your name."); return; }
+  const draft = loadDraft(state.name);
+  if(draft){
+    const useIt = confirm("We found an in-progress session for this name on this device. Resume where you left off?");
+    if(useIt){
+      Object.assign(state, {
+        section:draft.section||state.section, qIndex:draft.qIndex||0,
+        answers:draft.answers||{}, justifications:draft.justifications||{},
+        optOrder:draft.optOrder||{}, deadline:draft.deadline||(Date.now()+TOTAL_MS),
+        distraction:draft.distraction||{count:0,seconds:0}, startedAt:draft.startedAt||nowIso(),
+      });
+      state.screen="test";
+      startTimer();
+      render();
+      return;
+    }
+  }
+  state.qIndex = 0;
+  state.answers = {};
+  state.justifications = {};
+  state.optOrder = {};
+  state.distraction = {count:0, seconds:0};
+  state.startedAt = nowIso();
+  state.deadline = Date.now() + TOTAL_MS;
+  state.screen = "test";
+  startTimer();
+  render();
+  saveDraft();
+}
+function currentQuestion(){ return ORDER[state.qIndex]; }
+function ensureOrder(q){
+  if(!state.optOrder[q.id]) state.optOrder[q.id] = shuffle(Object.keys(q.options));
+  return state.optOrder[q.id];
+}
+function selectOption(qid, letter){
+  state.answers[qid] = letter;
+  render();
+  saveDraft();
+}
+function canAdvance(q){
+  if(q.bonus) return true;
+  return !!state.answers[q.id];
+}
+function goNext(){
+  const q = currentQuestion();
+  if(!canAdvance(q)){ showToast("Pick an option before continuing."); return; }
+  if(state.qIndex < ORDER.length-1){
+    state.qIndex += 1;
+    render();
+    saveDraft();
+  } else {
+    state.screen = "review";
+    render();
+  }
+}
+function goBack(){
+  if(state.qIndex>0){ state.qIndex -= 1; render(); }
+}
+function skipBonus(){
+  const q = currentQuestion();
+  delete state.answers[q.id];
+  goNext();
+}
+async function finalSubmit(){
+  const ok = await submitFinal();
+  if(ok){
+    if(timerHandle) clearInterval(timerHandle);
+    state.screen = "done";
+    render();
+  }
+}
+
+// ============================= RENDER =============================
+function render(){
+  const app = document.getElementById("app");
+  app.innerHTML = renderShell();
+  wireEvents();
+}
+function renderTimerOnly(){
+  const el = document.getElementById("timerVal");
+  if(!el || !state.deadline) return;
+  const remaining = state.deadline - Date.now();
+  el.textContent = fmtClock(remaining);
+  el.classList.toggle("low", remaining < 5*60*1000);
+}
+
+function topbarHtml(){
+  if(state.screen==="welcome" || state.screen==="submitting" || state.screen==="done"){
+    return `<div class="topbar"><div class="topbar-inner">
+      <div class="tb-left"><span class="dot"></span><span class="tb-file">dsa-pretest.exe</span></div>
+    </div></div>`;
+  }
+  const remaining = state.deadline ? state.deadline-Date.now() : TOTAL_MS;
+  const low = remaining < 5*60*1000;
+  const warn = state.distraction.count>0;
+  return `<div class="topbar"><div class="topbar-inner">
+    <div class="tb-left">
+      <span class="dot ${warn?'warn':''}"></span>
+      <span class="tb-file">${esc(state.name||'student')}.c — Q${state.qIndex+1}/${ORDER.length}${warn? ' — away x'+state.distraction.count : ''}</span>
+    </div>
+    <div class="tb-right"><span class="timer ${low?'low':''}" id="timerVal">${fmtClock(remaining)}</span></div>
+  </div></div>`;
+}
+
+function renderShell(){
+  let body = "";
+  if(state.screen==="welcome") body = welcomeScreen();
+  else if(state.screen==="test") body = testScreen();
+  else if(state.screen==="review") body = reviewScreen();
+  else if(state.screen==="submitting") body = submittingScreen();
+  else if(state.screen==="done") body = doneScreen();
+
+  const toast = state.toast ? `<div class="toast">${esc(state.toast)}</div>` : "";
+  return topbarHtml() + `<div class="wrap">${body}</div>` + toast;
+}
+
+function welcomeScreen(){
+  const dbWarning = !sb ? `
+    <div class="notice err">
+      <b>Setup incomplete:</b> this page isn't connected to a database yet. If you're the instructor, add your Supabase project URL and anon key near the top of the HTML file before sharing this link.
+    </div>` : "";
+  return `
+  <div class="card">
+    <div class="eyebrow">Diagnostic · Not graded</div>
+    <h1 class="title">Data Structures & Algorithms — Pre-Test</h1>
+    <p class="sub">10 required questions, plus 5 optional bonus questions you can skip if you're short on time. All code compiles and runs correctly — there's no single "correct" option. Pick whichever snippet you understand best and feel most confident writing yourself. Don't assume the shortest one is the easiest — read all three before deciding.</p>
+    <label class="field-label">Your name</label>
+    <input type="text" id="inName" placeholder="Juan Dela Cruz" value="${esc(state.name)}" />
+    <div class="row2">
+      <div>
+        <label class="field-label">Section</label>
+        <input type="text" id="inSection" placeholder="e.g. BSIT 2B" value="${esc(state.section)}" />
+      </div>
+    </div>
+    <div class="notice">
+      <b>Before you start:</b> this page tracks if you switch tabs or leave the window while the test is running — not to penalize you, but because the results are only useful if they reflect your own first instinct. Please keep other tabs and devices closed until you submit. Code snippets can't be copied. You'll have up to 90 minutes; a countdown is shown at the top.
+    </div>
+    ${dbWarning}
+    <div class="actions">
+      <button class="btn btn-primary" id="btnBegin">Begin test →</button>
+    </div>
+  </div>`;
+}
+
+function testScreen(){
+  const q = currentQuestion();
+  const order = ensureOrder(q);
+  const chosen = state.answers[q.id];
+  const pct = Math.round((state.qIndex)/ORDER.length*100);
+
+  const optionsHtml = order.map((letter, idx)=>{
+    const opt = q.options[letter];
+    const selected = chosen===letter;
+    return `
+    <div class="option ${selected?'selected':''}" data-letter="${letter}">
+      <div class="optbar">
+        <div class="radio"><div class="fill"></div></div>
+        <div class="optlabel">Option ${idx+1}</div>
+      </div>
+      <div class="codepanel">
+        <pre class="code">${hl(opt.lines)}</pre>
+      </div>
+    </div>`;
+  }).join("");
+
+  const stemHtml = q.stem ? `<div class="codepanel"><pre class="code">${hl(q.stem)}</pre></div>` : "";
+
+  const justifyHtml = q.requireJustification ? `
+    <div class="justify-box">
+      <label for="inJustify">In one sentence, why this one?</label>
+      <input type="text" id="inJustify" placeholder="Type a short reason…" value="${esc(state.justifications[q.id]||'')}" />
+      <div class="justify-hint">Helps us tell a genuine pick from a guess — no wrong answer here either.</div>
+    </div>` : "";
+
+  const nextDisabled = !canAdvance(q) ? "disabled" : "";
+  const isLast = state.qIndex === ORDER.length-1;
+
+  return `
+  <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+  <div class="card">
+    <div class="qmeta">
+      <span class="qtag">Question ${state.qIndex+1} of ${ORDER.length} · ${esc(q.topic)}</span>
+      ${q.bonus ? '<span class="bonus-badge">BONUS · optional</span>' : ''}
+    </div>
+    <div class="qintro">${esc(q.intro)}</div>
+    ${stemHtml}
+    ${optionsHtml}
+    ${justifyHtml}
+    <div class="actions">
+      <div class="actions-left">
+        <button class="btn btn-ghost" id="btnBack" ${state.qIndex===0?'disabled':''}>← Back</button>
+        ${q.bonus ? '<button class="btn btn-skip" id="btnSkip">Skip this one</button>' : ''}
+      </div>
+      <button class="btn btn-primary" id="btnNext" ${nextDisabled}>${isLast ? 'Review & submit →' : 'Next →'}</button>
+    </div>
+  </div>`;
+}
+
+function reviewScreen(){
+  const answeredCore = CORE.filter(q=>state.answers[q.id]).length;
+  const answeredBonus = BONUS.filter(q=>state.answers[q.id]).length;
+  const rows = ORDER.map((q,i)=>{
+    const ans = state.answers[q.id];
+    const status = ans ? `Answered` : (q.bonus ? `Skipped` : `Not answered`);
+    return `<tr><td>${i+1}</td><td>${esc(q.topic)}${q.bonus?' (bonus)':''}</td><td>${status}</td></tr>`;
+  }).join("");
+  const errBox = state.submitError ? `<div class="notice err">${esc(state.submitError)}</div>` : "";
+  return `
+  <div class="card">
+    <div class="eyebrow">Almost done</div>
+    <h2 class="title" style="font-size:22px;">Review before you submit</h2>
+    <p class="sub">${answeredCore}/${CORE.length} required questions answered · ${answeredBonus}/${BONUS.length} bonus questions answered.</p>
+    <div class="table-scroll"><table><thead><tr><th>#</th><th>Topic</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table></div>
+    ${errBox}
+    <div class="actions">
+      <button class="btn btn-ghost" id="btnBackToTest">← Back to questions</button>
+      <button class="btn btn-primary" id="btnSubmit">Submit my answers</button>
+    </div>
+  </div>`;
+}
+
+function submittingScreen(){
+  return `
+  <div class="card">
+    <div class="eyebrow">One moment</div>
+    <h2 class="title" style="font-size:22px;">Submitting…</h2>
+    <p class="sub"><span class="spinner" style="border-top-color:var(--ink); border-color:rgba(0,0,0,.15);"></span>&nbsp; Sending your answers.</p>
+  </div>`;
+}
+
+function doneScreen(){
+  const msg = state.autoSubmitted
+    ? "Time was up, so your answers were submitted automatically."
+    : "Your answers have been submitted.";
+  return `
+  <div class="card">
+    <div class="eyebrow">Done</div>
+    <h2 class="title" style="font-size:22px;">Thanks, ${esc(state.name||'there')}.</h2>
+    <p class="sub">${msg} No score is shown here — this was a diagnostic for your instructor, not a grade for you. You can close this tab.</p>
+  </div>`;
+}
+
+// ============================= EVENTS =============================
+function wireEvents(){
+  const $ = (id)=>document.getElementById(id);
+
+  if($("inName")) $("inName").addEventListener("input", e=>{ state.name=e.target.value; });
+  if($("inSection")) $("inSection").addEventListener("input", e=>{ state.section=e.target.value; });
+  if($("btnBegin")) $("btnBegin").addEventListener("click", beginTest);
+
+  if($("btnBack")) $("btnBack").addEventListener("click", goBack);
+  if($("btnNext")) $("btnNext").addEventListener("click", goNext);
+  if($("btnSkip")) $("btnSkip").addEventListener("click", skipBonus);
+  if($("inJustify")) $("inJustify").addEventListener("input", e=>{
+    const q = currentQuestion();
+    state.justifications[q.id] = e.target.value;
+  });
+  document.querySelectorAll(".option").forEach(el=>{
+    el.addEventListener("click", ()=>{
+      const q = currentQuestion();
+      selectOption(q.id, el.getAttribute("data-letter"));
+    });
+  });
+
+  if($("btnBackToTest")) $("btnBackToTest").addEventListener("click", ()=>{ state.screen="test"; state.qIndex=ORDER.length-1; render(); });
+  if($("btnSubmit")) $("btnSubmit").addEventListener("click", finalSubmit);
+}
+
+render();
+</script>
+</body>
+</html>
