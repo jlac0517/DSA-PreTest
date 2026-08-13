@@ -320,7 +320,7 @@ const QUESTIONS = [
 const CORE = QUESTIONS.filter(q=>!q.bonus);
 const BONUS = QUESTIONS.filter(q=>q.bonus);
 const ORDER = [...CORE, ...BONUS];
-const TOTAL_MS = 90 * 60 * 1000; // 90-minute ceiling; instructor can announce a shorter stop time
+const TOTAL_MS = 60 * 60 * 1000; // 90-minute ceiling; instructor can announce a shorter stop time
 const DRAFT_PREFIX = "dsa_pretest_draft_";
 
 // ---------- helpers ----------
